@@ -1,36 +1,36 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import h5py
-import scipy
-from PIL import Image
-from scipy import ndimage
+# import matplotlib.pyplot as plt
+# import h5py
+# import scipy
+# from PIL import Image
+# from scipy import ndimage
 from lr_utils import load_dataset
 
+
 class LogisticModel(object):
-    def __init__(self,learning_rate,normalize=False,num_iter=50,print_cost=False):
+    def __init__(self, learning_rate, normalize=False, num_iter=50, print_cost=False):
         """
         逻辑回归模型参数初始化
         :param learning_rate:学习速率
         :param num_iter:最大迭代次数
         :param print_cost:是否打印损失函数情况
         """
-        self.learning_rate=learning_rate
-        self.normalize=normalize
-        self.num_iter=num_iter
-        self.print_cost=print_cost
+        self.learning_rate = learning_rate
+        self.normalize = normalize
+        self.num_iter = num_iter
+        self.print_cost = print_cost
 
-
-    def init(self,X):
+    def init(self, X):
         """
         逻辑回归模型中参数初始化
         :param X: 训练数据
         """
-        dim,m = X.shape
-        self.w = np.zeros((dim,1))
+        dim, m = X.shape
+        self.w = np.zeros((dim, 1))
         self.b = 0
-        self.x_norm = np.ones((dim,1))
+        self.x_norm = np.ones((dim, 1))
 
-    def propagate(self,X,Y):
+    def propagate(self, X, Y):
         """
         一次前向和后向传播，得到各参数的梯度
         :param X: 输入值
@@ -39,29 +39,29 @@ class LogisticModel(object):
         """
         # 当前输入样本数
         # X矩阵的shape=(样本维度，样本数)
-        dim,m = X.shape
+        dim, m = X.shape
         # 前向传播
-        A = self.sigmoid(np.dot(self.w.T,X)+self.b)
+        A = self.sigmoid(np.dot(self.w.T, X)+self.b)
         # A为该批样本得到的预测的值 行向量
-        assert A.shape,(1,m)
+        assert A.shape, (1, m)
         # 得到损失函数
         cost = -(1.0/m)*np.sum(Y*np.log(A)+(1-Y)*np.log(1-A))
 
-        #反向传播
+        # 反向传播
         dw = (1.0 / m) * np.dot(X, (A - Y).T)
-        assert dw.shape,self.w.shape
+        assert dw.shape, self.w.shape
         db = (1.0 / m) * np.sum(A - Y)
-        assert(db.dtype==float)
+        assert db.dtype == float
 
         cost = np.squeeze(cost)
-        assert (cost.shape == ())
+        assert cost.shape == ()
 
         grads = {"dw": dw,
                  "db": db}
 
         return grads, cost
 
-    def train(self,X,Y):
+    def train(self, X, Y):
         """
         给定训练数据，学习模型中的参数w和b。
         :param X: 训练数据
@@ -69,10 +69,10 @@ class LogisticModel(object):
         """
         self.init(X)
         if self.normalize:
-            X = self.normalize_rows(X,False)
+            X = self.normalize_rows(X, False)
         costs = []
         for i in range(self.num_iter):
-            grads, cost = self.propagate(X,Y)
+            grads, cost = self.propagate(X, Y)
 
             # 得到参数的梯度
             dw = grads["dw"]
@@ -82,29 +82,29 @@ class LogisticModel(object):
             self.w -= self.learning_rate*dw
             self.b -= self.learning_rate*db
 
-            if i%100 ==0:
+            if i % 100 == 0:
                 costs.append(cost)
                 if self.print_cost:
-                    print("Cost after iteration %i: %f" % (i, cost))
+                    print("Cost after iteration %i: %f" % (i, cost.squeeze()))
 
         return costs
 
-    def predict(self,X):
+    def predict(self, X):
         """
         根据该模型预测数据的标签
         :param X: 预测数据
         :return: 预测数据的标签
         """
-        dim,m = X.shape
-        X = self.normalize_rows(X,True)
-        assert(self.w.shape[0]==dim)
+        dim, m = X.shape
+        X = self.normalize_rows(X, True)
+        assert self.w.shape[0] == dim
 
-        A = self.sigmoid(np.dot(self.w.T,X)+self.b)
+        A = self.sigmoid(np.dot(self.w.T, X)+self.b)
 
-        return np.where(A>0.5,1,0)
+        return np.where(A > 0.5, 1, 0)
 
-
-    def sigmoid(self,x):
+    @staticmethod
+    def sigmoid(x):
         """
         神经元中的激活函数
         :param x: 数值或者numpy数组
@@ -112,19 +112,20 @@ class LogisticModel(object):
         """
         return 1.0/(1+np.exp(-x))
 
-    def normalize_rows(self,X,is_predict):
+    def normalize_rows(self, X, is_predict):
         """
         对于输入矩阵，按行进行数值归一化
-        :param x: numpy矩阵
+        :param X: numpy矩阵
+        :param is_predict:如果是预测，则使用训练时的归一化数据对预测数据做同样的归一化。
         :return:归一化后的numpy矩阵
         """
-        dim,m = X.shape
+        dim, m = X.shape
         if not is_predict:
-            self.x_norm = np.linalg.norm(X,axis=1,keepdims=True).reshape(dim,1)
+            self.x_norm = np.linalg.norm(X, axis=1, keepdims=True).reshape(dim, 1)
         return X/self.x_norm
 
 
-# def digmoid_gradient(x):
+# def sigmoid_gradient(x):
 #     """
 #     计算激活函数的导数
 #     :param x: 输入值
@@ -133,7 +134,7 @@ class LogisticModel(object):
 #     s = sigmoid(x)
 #     ds = s*(1-s)
 
-def L1(y_pred,y):
+def L1(y_pred, y):
     """
     L1损失定义
     :param y_pred: 预测的y值
@@ -142,14 +143,15 @@ def L1(y_pred,y):
     """
     return np.sum(np.abs(y_pred-y))
 
-def L2(y_pred,y):
+
+def L2(y_pred, y):
     """
     L2损失定义
     :param y_pred: 预测的y值
     :param y: 实际的y值
     :return: L2损失值
     """
-    return np.sum(np.power(y_pred-y,2))
+    return np.sum(np.power(y_pred-y, 2))
 
 
 def main():
@@ -177,8 +179,8 @@ def main():
     print("sanity check after reshaping: " + str(train_set_x_flatten[0:5, 0]))
 
     # TODO: 如果不normalize，sigmoid中的np.exp会过大，求导的np.log(1-A)中1-A会出现0。怎么解决???
-    model = LogisticModel(learning_rate=1,normalize=True,num_iter=10000,print_cost=True)
-    costs = model.train(train_set_x_flatten,train_set_y)
+    model = LogisticModel(learning_rate=1, normalize=True, num_iter=10000, print_cost=True)
+    costs = model.train(train_set_x_flatten, train_set_y)
 
     y_pred_train = model.predict(train_set_x_flatten)
     y_pred_test = model.predict(test_set_x_flatten)
@@ -189,14 +191,13 @@ def main():
     d = {
             "costs": costs,
             "Y_prediction_test": y_pred_test,
-            "Y_prediction_train" : y_pred_train,
-            "w" : model.w,
-            "b" : model.b,
-            "learning_rate" : model.learning_rate,
+            "Y_prediction_train": y_pred_train,
+            "w": model.w,
+            "b": model.b,
+            "learning_rate": model.learning_rate,
             "num_iterations": model.num_iter}
 
     return d
-
 
 
 if __name__ == "__main__":
