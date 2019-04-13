@@ -176,7 +176,7 @@ def main():
     print("test_set_y shape: " + str(test_set_y.shape))
     print("sanity check after reshaping: " + str(train_set_x_flatten[0:5, 0]))
 
-    model = LogisticModel(learning_rate=2,normalize=True,num_iter=10000,print_cost=True)
+    model = LogisticModel(learning_rate=1,normalize=True,num_iter=10000,print_cost=True)
     costs = model.train(train_set_x_flatten,train_set_y)
 
     y_pred_train = model.predict(train_set_x_flatten)
@@ -193,7 +193,6 @@ def main():
             "b" : model.b,
             "learning_rate" : model.learning_rate,
             "num_iterations": model.num_iter}
-
 
     return d
 
