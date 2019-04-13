@@ -176,6 +176,7 @@ def main():
     print("test_set_y shape: " + str(test_set_y.shape))
     print("sanity check after reshaping: " + str(train_set_x_flatten[0:5, 0]))
 
+    # TODO: 如果不normalize，sigmoid中的np.exp会过大，求导的np.log(1-A)中1-A会出现0。怎么解决???
     model = LogisticModel(learning_rate=1,normalize=True,num_iter=10000,print_cost=True)
     costs = model.train(train_set_x_flatten,train_set_y)
 
